@@ -16,6 +16,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     let baseURL = "https://apiv2.bitcoinaverage.com/indices/global/ticker/BTC"
     let currencyArray = ["AUD", "BRL","CAD","CNY","EUR","GBP","HKD","IDR","ILS","INR","JPY","MXN","NOK","NZD","PLN","RON","RUB","SEK","SGD","USD","ZAR"]
     let currencySymbols = ["$", "R$", "$", "¥", "€", "£", "$", "Rp", "₪", "₹", "¥", "$", "kr", "$", "zł", "lei", "₽", "kr", "$", "$", "R"]
+    var currencySymbol = ""
     var finalURL = ""
 
     //Pre-setup IBOutlets
@@ -47,7 +48,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         finalURL = baseURL + currencyArray[row]
-        getBitCoinValue(url: finalURL, currencySymbol: row)
+        currencySymbol = currencySymbols[row]
+        getBitCoinValue(url: finalURL)
     }
     
     
@@ -55,7 +57,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     //MARK: - Networking
     /***************************************************************/
   
-    func getBitCoinValue(url: String, currencySymbol: Int) {
+    func getBitCoinValue(url: String) {
         
         Alamofire.request(url, method: .get)
             .responseJSON { response in
@@ -64,7 +66,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     print("Sucess! Got BitCoin Value")
                     let bitCoinValueJSON : JSON = JSON(response.result.value!)
 
-                    self.updateBitCoinValue(json: bitCoinValueJSON, currencySymbol: currencySymbol)
+                    self.updateBitCoinValue(json: bitCoinValueJSON)
 
                 } else {
                     print("Error: \(String(describing: response.result.error))")
@@ -81,10 +83,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     //MARK: - JSON Parsing
     /***************************************************************/
     
-    func updateBitCoinValue(json : JSON, currencySymbol: Int) {
+    func updateBitCoinValue(json : JSON) {
         
         if let results = json["open"]["hour"].double {
-            bitcoinPriceLabel.text = String(currencySymbols[currencySymbol])  + String(results)
+            bitcoinPriceLabel.text = currencySymbol + String(results)
         }
         
         else {
